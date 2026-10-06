@@ -1,1 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Virtual Warehouse</title>
 
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#f5f7fb;
+color:#111827;
+padding-bottom:80px
+}
+
+header{
+height:72px;
+background:#fff;
+border-bottom:1px solid #e5e7eb;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 20px;
+position:sticky;
+top:0;
+z-index:10
+}
+
+.logo{
+font-size:21px;
+font-weight:800
+}
+
+button{
+border:0;
+border-radius:14px;
+padding:14px 18px;
+font-size:15px;
+font-weight:700;
+cursor:pointer
+}
+
+.outline{
+background:#fff;
+border:1px solid #d9dde5
+}
+
+.hero{
+margin:26px 18px;
+padding:28px 22px;
+border-radius:28px;
+background:#080d18;
+color:white
+}
+
+.hero h1{
+font-size:34px;
+line-height:1.15;
+margin:0 0 16px
+}
+
+.hero p{
+font-size:16px;
+line-height:1.5;
+color:#cbd5e1;
+margin-bottom:20px
+}
+
+.search{
+width:100%;
+padding:17px;
+border:0;
+border-radius:16px;
+font-size:16px;
+outline:none;
+margin-bottom:12px
+}
+
+.actions{
+display:flex;
+gap:12px
+}
+
+.primary{
+background:#fff;
+color:#111827;
+flex:1
+}
+
+.secondary{
+background:#1b2434;
+color:#fff;
+flex:1
+}
+
+.container{
+padding:0 18px
+}
+
+h2{
+font-size:25px;
+margin:28px 0 15px
+}
+
+.categories{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px
+}
+
+.category{
+background:#fff;
+border:1px solid #e5e7eb;
+border-radius:18px;
+padding:20px 10px;
+text-align:center;
+font-weight:700
+}
+
+.products{
+display:grid;
+gap:14px
+}
+
+.product{
+background:#fff;
+border:1px solid #e5e7eb;
+border-radius:20px;
+padding:20px
+}
+
+.product-category{
+font-size:14px;
+color:#6b7280;
+margin-bottom:8px
+}
+
+.product h3{
+font-size:21px;
+margin:5px 0 10px
+}
+
+.supplier{
+font-size:14px;
+color:#4b5563
+}
+
+.price{
+font-size:18px;
+font-weight:800;
+margin:14px 0
+}
+
+.product button{
+width:100%
+}
+
+.trust{
+display:inline-block;
+margin-top:10px;
+padding:6px 10px;
+border-radius:20px;
+background:#eef6ee;
+font-size:12px;
+font-weight:700
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+height:72px;
+background:#fff;
+border-top:1px solid #ddd;
+display:flex;
+justify-content:space-around;
+align-items:center;
+z-index:20
+}
+
+.bottom-nav button{
+background:none;
+padding:7px;
+font-size:12px;
+font-weight:600
+}
+
+.modal{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.55);
+z-index:100;
+align-items:flex-end
+}
+
+.sheet{
+background:#fff;
+width:100%;
+max-height:88vh;
+overflow:auto;
+border-radius:28px 28px 0 0;
+padding:24px 20px 30px
+}
+
+.close{
+float:right;
+background:#f1f3f5;
+font-size:22px;
+padding:6px 12px
+}
+
+.sheet h2{
+margin-top:5px
+}
+
+label{
+display:block;
+font-size:13px;
+font-weight:700;
+margin-top:14px;
+margin-bottom:5px
+}
+
+input,textarea,select{
+width:100%;
+padding:14px;
+border:1px solid #d9dde5;
+border-radius:12px;
+font-size:15px;
+font-family:inherit;
+outline:none
+}
+
+.submit{
+width:100%;
+margin-top:20px;
+background:#080d18;
+color:#fff
+}
+
+.empty{
+text-align:center;
+padding:30px;
+color:#6b7280;
+display:none
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">Virtual Warehouse</div>
+<button class="outline" onclick="openSeller()">List Products</button>
+</header>
+
+<main>
+
+<section class="hero">
+
+<h1>Find products.<br>Connect with suppliers.</h1>
+
+<p>
+Search products, discover suppliers and send a purchase request from one place.
+</p>
+
+<input
+id="search"
+class="search"
+placeholder="Search pistachio, coffee, raisins..."
+oninput="searchProducts()"
+>
+
+<div class="actions">
+
+<button
+class="primary"
+onclick="scrollToProducts()">
+Find Products
+</button>
+
+<button
+class="secondary"
+onclick="openSeller()">
+I'm a Seller
+</button>
+
+</div>
+
+</section>
+
+<div class="container">
+
+<h2>Categories</h2>
+
+<div class="categories">
+
+<div class="category" onclick="categorySearch('Dry Fruits')">
+Dry Fruits
+</div>
+
+<div class="category" onclick="categorySearch('Coffee')">
+Coffee
+</div>
+
+<div class="category" onclick="categorySearch('Herbal')">
+Herbal Products
+</div>
+
+<div class="category" onclick="categorySearch('Beverages')">
+Beverages
+</div>
+
+</div>
+
+<h2 id="productsTitle">Products</h2>
+
+<div id="products" class="products">
+
+<article class="product">
+
+<div class="product-category">
+Dry Fruits
+</div>
+
+<h3>Premium Pistachio</h3>
+
+<div class="supplier">
+Iran · Supplier
+</div>
+
+<div class="trust">
+✓ Supplier Verified
+</div>
+
+<div class="price">
+Request Price
+</div>
+
+<button
+class="outline"
+onclick="openRequest('Premium Pistachio')">
+Request / Connect
+</button>
+
+</article>
+
+
+<article class="product">
+
+<div class="product-category">
+Coffee
+</div>
+
+<h3>Arabica Coffee Beans</h3>
+
+<div class="supplier">
+Roasted · Supplier
+</div>
+
+<div class="trust">
+✓ Supplier Verified
+</div>
+
+<div class="price">
+Request Price
+</div>
+
+<button
+class="outline"
+onclick="openRequest('Arabica Coffee Beans')">
+Request / Connect
+</button>
+
+</article>
+
+
+<article class="product">
+
+<div class="product-category">
+Herbal Products
+</div>
+
+<h3>Herbal Distillate</h3>
+
+<div class="supplier">
+Producer · Iran
+</div>
+
+<div class="trust">
+Basic Trust
+</div>
+
+<div class="price">
+Request Price
+</div>
+
+<button
+class="outline"
+onclick="openRequest('Herbal Distillate')">
+Request / Connect
+</button>
+
+</article>
+
+
+<article class="product">
+
+<div class="product-category">
+Beverages
+</div>
+
+<h3>Natural Fruit Juice</h3>
+
+<div class="supplier">
+Producer · Supplier
+</div>
+
+<div class="trust">
+✓ Supplier Verified
+</div>
+
+<div class="price">
+Request Price
+</div>
+
+<button
+class="outline"
+onclick="openRequest('Natural Fruit Juice')">
+Request / Connect
+</button>
+
+</article>
+
+</div>
+
+<div id="empty" class="empty">
+No products found.
+</div>
+
+</div>
+
+</main>
+
+
+<!-- Bottom Navigation -->
+
+<nav class="bottom-nav">
+
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+⌂<br>Home
+</button>
+
+<button onclick="scrollToProducts()">
+▦<br>Products
+</button>
+
+<button onclick="openRequest('')">
+＋<br>Request
+</button>
+
+<button onclick="openSeller()">
+♙<br>Seller
+</button>
+
+<button>
+◉<br>Account
+</button>
+
+</nav>
+
+
+<!-- REQUEST MODAL -->
+
+<div id="requestModal" class="modal">
+
+<div class="sheet">
+
+<button class="close" onclick="closeModal('requestModal')">
+×
+</button>
+
+<h2>Purchase Request</h2>
+
+<label>Product</label>
+<input id="requestProduct" placeholder="Product name">
+
+<label>Required Specifications</label>
+<textarea rows="3"
+placeholder="Standard, grade, quality, specifications..."></textarea>
+
+<label>Quantity / Purchase Requirement</label>
+<input placeholder="Example: 500 kg / regular supply">
+
+<label>Delivery Location</label>
+<input placeholder="City / location">
+
+<label>Additional Requirements</label>
+<textarea rows="3"
+placeholder="Additional information"></textarea>
+
+<button
+class="submit"
+onclick="submitRequest()">
+Send Request
+</button>
+
+</div>
+
+</div>
+
+
+<!-- SELLER MODAL -->
+
+<div id="sellerModal" class="modal">
+
+<div class="sheet">
+
+<button class="close" onclick="closeModal('sellerModal')">
+×
+</button>
+
+<h2>Add Product</h2>
+
+<label>Product Name</label>
+<input id="sellerProduct" placeholder="Product name">
+
+<label>Category</label>
+
+<select>
+<option>Dry Fruits</option>
+<option>Coffee</option>
+<option>Herbal Products</option>
+<option>Beverages</option>
+</select>
+
+<label>Product Specifications</label>
+
+<textarea rows="3"
+placeholder="Grade, type, origin, specifications..."></textarea>
+
+<label>Price</label>
+
+<input placeholder="Price or Request Price">
+
+<label>Minimum Order</label>
+
+<input placeholder="Example: 10 kg">
+
+<label>Delivery Area</label>
+
+<input placeholder="Cities / regions">
+
+<button
+class="submit"
+onclick="submitProduct()">
+List Product
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+function openRequest(product){
+
+document.getElementById("requestProduct").value=product;
+
+document.getElementById("requestModal").style.display="flex";
+
+}
+
+
+function openSeller(){
+
+document.getElementById("sellerModal").style.display="flex";
+
+}
+
+
+function closeModal(id){
+
+document.getElementById(id).style.display="none";
+
+}
+
+
+function submitRequest(){
+
+alert("Purchase request created in this prototype.");
+
+closeModal("requestModal");
+
+}
+
+
+function submitProduct(){
+
+alert("Product added to the prototype.");
+
+closeModal("sellerModal");
+
+}
+
+
+function scrollToProducts(){
+
+document.getElementById("productsTitle")
+.scrollIntoView({
+behavior:"smooth"
+});
+
+}
+
+
+function categorySearch(category){
+
+document.getElementById("search").value=category;
+
+searchProducts();
+
+scrollToProducts();
+
+}
+
+
+function searchProducts(){
+
+let query=document
+.getElementById("search")
+.value
+.toLowerCase()
+.trim();
+
+let products=document
+.querySelectorAll(".product");
+
+let found=0;
+
+products.forEach(function(product){
+
+let text=product.innerText.toLowerCase();
+
+if(text.includes(query)){
+
+product.style.display="block";
+found++;
+
+}else{
+
+product.style.display="none";
+
+}
+
+});
+
+document.getElementById("empty").style.display=
+found===0 ? "block" : "none";
+
+}
+
+</script>
+
+</body>
+</html>
